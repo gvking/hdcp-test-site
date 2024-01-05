@@ -1,8 +1,3 @@
-<html>
-    <h1> EME getStatusForPolicy() Test</h1>
-
-    <ul id="resultList">
-
     <script>
         var hdcpVersions = [
             "",
@@ -25,10 +20,7 @@
             }]
         }
         ];
-
-        var resultMap = new Map();
-
-        async function getStatusForPolicyTest(mediaKeys) {
+        async function getStatusForPolicy(mediaKeys) {
             if (!('getStatusForPolicy' in mediaKeys)) {
                 return Promise.reject('HDCP Policy Check API is not available');
             }
@@ -36,15 +28,9 @@
             for (let i = 0; i < hdcpVersions.length; i++) {
                 hdcpVersion = hdcpVersions[i];
                 await mediaKeys.getStatusForPolicy({ minHdcpVersion: hdcpVersion }).then(keyStatus => {
-                    if (hdcpVersion.length == 0)
-                        hdcpVersion = "empty input";
-                    resultMap.set(hdcpVersion, keyStatus);
-                    addResultLine(hdcpVersion, keyStatus);
+                    console.log("supported");
                 }).catch(e => {
-                    if (hdcpVersion.length == 0)
-                        hdcpVersion = "empty input";
-                    resultMap.set(hdcpVersion, "promise rejected: " + e);
-                    addResultLine(hdcpVersion, "promise rejected: " + e);
+                    console.log("promise rejected");
                 });
             }
         }
@@ -53,27 +39,6 @@
             .then(keySystemAccess => {
                 return keySystemAccess.createMediaKeys();
             }).then(mediaKeys => {
-                return getStatusForPolicyTest(mediaKeys);
-            }).catch(e => {
-                reportError(e);
-            });
-
-        function addResultLine(hdcpVersion, result) {
-            var node = document.createElement("LI");
-            var textnode = document.createTextNode(hdcpVersion + " => " + result);
-            node.appendChild(textnode);
-            document.getElementById("resultList").appendChild(node);
-        }
-
-        function reportError(error) {
-            var node = document.createElement("LI");
-            var textnode = document.createTextNode(error);
-            node.appendChild(textnode);
-            document.getElementById("resultList").appendChild(node);
-        }
+                return getStatusForPolicy(mediaKeys);
+            })  
     </script>
-
-
-
-
-</body></html>
