@@ -1,6 +1,6 @@
     <script>
         var hdcpVersions = [
-            "",
+            // "",
             "1.0",
             // "1.1",
             // "1.2",
@@ -49,10 +49,10 @@
             }).then(mediaKeys => {
                 return getStatusForPolicy(mediaKeys);
             }) 
-        navigator.requestMediaKeySystemAccess('com.widevine.alpha', widevineOptionsRobustnessDefined)
-            .then(keySystemAccess => {
-                return keySystemAccess.createMediaKeys();
-            }).then(mediaKeys => {
-                return getStatusForPolicy(mediaKeys);
-            })  
+        // navigator.requestMediaKeySystemAccess('com.widevine.alpha', widevineOptionsRobustnessDefined)
+        //     .then(keySystemAccess => {
+        //         return keySystemAccess.createMediaKeys();
+        //     }).then(mediaKeys => {
+        //         return getStatusForPolicy(mediaKeys);
+        //     })  
     </script>
