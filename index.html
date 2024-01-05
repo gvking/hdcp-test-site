@@ -1,69 +1,79 @@
-<script>
-    var hdcpVersions = [
-        "",
-        "1.0",
-        "1.1",
-        "1.2",
-        "1.3",
-        "1.4",
-        "2.0",
-        "2.1",
-        "2.2",
-        "2.3",
-    ];
+<html>
+    <h1> EME getStatusForPolicy() Test</h1>
 
-    var widevineOptions = [{
-        initDataTypes: ['cenc'],
-        videoCapabilities: [{
-            contentType: 'video/mp4;codecs="avc1.4d401e"',
-            // robustness: 'SW_SECURE_DECODE'
-        }]
-    }
-    ];
+    <ul id="resultList">
 
-    var resultMap = new Map();
+    <script>
+        var hdcpVersions = [
+            "",
+            "1.0",
+            "1.1",
+            "1.2",
+            "1.3",
+            "1.4",
+            "2.0",
+            "2.1",
+            "2.2",
+            "2.3",
+        ];
 
-    async function getStatusForPolicyTest(mediaKeys) {
-        if (!('getStatusForPolicy' in mediaKeys)) {
-            return Promise.reject('HDCP Policy Check API is not available');
+        var widevineOptions = [{
+            initDataTypes: ['cenc'],
+            videoCapabilities: [{
+                contentType: 'video/mp4;codecs="avc1.4d401e"',
+                // robustness: 'SW_SECURE_DECODE'
+            }]
+        }
+        ];
+
+        var resultMap = new Map();
+
+        async function getStatusForPolicyTest(mediaKeys) {
+            if (!('getStatusForPolicy' in mediaKeys)) {
+                return Promise.reject('HDCP Policy Check API is not available');
+            }
+
+            for (let i = 0; i < hdcpVersions.length; i++) {
+                hdcpVersion = hdcpVersions[i];
+                await mediaKeys.getStatusForPolicy({ minHdcpVersion: hdcpVersion }).then(keyStatus => {
+                    if (hdcpVersion.length == 0)
+                        hdcpVersion = "empty input";
+                    resultMap.set(hdcpVersion, keyStatus);
+                    addResultLine(hdcpVersion, keyStatus);
+                }).catch(e => {
+                    if (hdcpVersion.length == 0)
+                        hdcpVersion = "empty input";
+                    resultMap.set(hdcpVersion, "promise rejected: " + e);
+                    addResultLine(hdcpVersion, "promise rejected: " + e);
+                });
+            }
         }
 
-        for (let i = 0; i < hdcpVersions.length; i++) {
-            hdcpVersion = hdcpVersions[i];
-            await mediaKeys.getStatusForPolicy({ minHdcpVersion: hdcpVersion }).then(keyStatus => {
-                if (hdcpVersion.length == 0)
-                    hdcpVersion = "empty input";
-                resultMap.set(hdcpVersion, keyStatus);
-                addResultLine(hdcpVersion, keyStatus);
+        navigator.requestMediaKeySystemAccess('com.widevine.alpha', widevineOptions)
+            .then(keySystemAccess => {
+                return keySystemAccess.createMediaKeys();
+            }).then(mediaKeys => {
+                return getStatusForPolicyTest(mediaKeys);
             }).catch(e => {
-                if (hdcpVersion.length == 0)
-                    hdcpVersion = "empty input";
-                resultMap.set(hdcpVersion, "promise rejected: " + e);
-                addResultLine(hdcpVersion, "promise rejected: " + e);
+                reportError(e);
             });
+
+        function addResultLine(hdcpVersion, result) {
+            var node = document.createElement("LI");
+            var textnode = document.createTextNode(hdcpVersion + " => " + result);
+            node.appendChild(textnode);
+            document.getElementById("resultList").appendChild(node);
         }
-    }
 
-    navigator.requestMediaKeySystemAccess('com.widevine.alpha', widevineOptions)
-        .then(keySystemAccess => {
-            return keySystemAccess.createMediaKeys();
-        }).then(mediaKeys => {
-            return getStatusForPolicyTest(mediaKeys);
-        }).catch(e => {
-            reportError(e);
-        });
+        function reportError(error) {
+            var node = document.createElement("LI");
+            var textnode = document.createTextNode(error);
+            node.appendChild(textnode);
+            document.getElementById("resultList").appendChild(node);
+        }
+    </script>
 
-    function addResultLine(hdcpVersion, result) {
-        var node = document.createElement("LI");
-        var textnode = document.createTextNode(hdcpVersion + " => " + result);
-        node.appendChild(textnode);
-        document.getElementById("resultList").appendChild(node);
-    }
 
-    function reportError(error) {
-        var node = document.createElement("LI");
-        var textnode = document.createTextNode(error);
-        node.appendChild(textnode);
-        document.getElementById("resultList").appendChild(node);
-    }
-</script>
+
+
+</body></html>
